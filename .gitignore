@@ -8,6 +8,7 @@ bin-release/
 .settings/
 data/
 key.json
+.env
 
 # Executables
 *.swf
