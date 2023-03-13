@@ -9,7 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# Optional, good practice for dev purposes. Allow all middlewares
+
+#Optional, good practice for dev purposes. Allow all middlewares
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allows all origins
