@@ -1,8 +1,8 @@
 import requests
-from shapely.geometry import Point
+import geopandas as gpd #####added libraries
+from shapely.geometry import Point, Polygon, box ##### added shapely.geometry.Polygon
 from oauthlib.oauth2 import BackendApplicationClient
 from requests_oauthlib import OAuth2Session
-from shapely.geometry import Point, box
 import os
 from dotenv import load_dotenv
 import pandas as pd
@@ -12,40 +12,19 @@ from google.auth.transport.requests import AuthorizedSession
 from google.oauth2 import service_account
 from pprint import pprint
 import json
-import streamlit as st
-import tempfile
-import toml
 
 def initialize_api():
     # Obtain a private key file for your service account
-    SERVICE_ACCOUNT = st.secrets["SERVICE_ACCOUNT"]
-
-    # Read in the secrets file
-    with open('.streamlit/secrets.toml', 'r') as f:
-        secrets = toml.load(f)
-
-    # Remove the "client_id" and "client_secret" keys from the dictionary
-    del secrets["SERVICE_ACCOUNT"]
-    del secrets["PROJECT"]
-
-    # Convert the remaining secrets to a JSON object
-    tfile = tempfile.NamedTemporaryFile(mode="w+")
-    json.dump(secrets, tfile)
-    # json.dump(secrets_json, tfile)
-    tfile.flush()
-    file_path = tfile.name
-
-    KEY = file_path
-
-    Project = st.secrets["PROJECT"]
+    load_dotenv()
+    SERVICE_ACCOUNT = os.getenv("SERVICE_ACCOUNT")
+    KEY = os.getenv("KEY")
+    Project = os.getenv("PROJECT")
 
     #Start an AuthorizedSession
     credentials = service_account.Credentials.from_service_account_file(KEY)
     scoped_credentials = credentials.with_scopes(['https://www.googleapis.com/auth/cloud-platform'])
 
     session = AuthorizedSession(scoped_credentials)
-
-    print(session)
 
     # Get Earth Engine scoped credentials from the service account.
     # Use them to initialize Earth Engine.
@@ -55,7 +34,7 @@ def initialize_api():
     return session, Project
 
 
-def get_sat_image_model(session, Project, latitude, longitude):
+def get_sat_image_model(session, Project, latitude, longitude, mode):
 
     # Create a square bounding box around the Lat / Lon
     xmin, ymax = create_bounding_box(latitude, longitude, "Model")
@@ -120,10 +99,18 @@ def get_sat_image_model(session, Project, latitude, longitude):
 
     image_content = response.content
 
-    filename = "Interface/temp/{},{}.png".format(latitude,longitude)
-    with open(filename, "wb") as f:
-        f.write(image_content)
-        return filename
+    if mode == 'Model':
+        # Generate the filename
+        filename = "trial/{}.png".format(latitude)
+        # Save the image data to file
+        with open(filename, "wb") as f:
+            f.write(image_content)
+    else:
+        # Generate the filename
+        filename = "site/{},{}.png".format(latitude,longitude)
+        with open(filename, "wb") as f:
+            f.write(image_content)
+            return filename
 
 def create_bounding_box(longitude, latitude, mode):
     # Define the point and square side length
@@ -139,6 +126,7 @@ def create_bounding_box(longitude, latitude, mode):
     # Create bbox
     bboxes = []
     bboxes.append([(xmax, ymin), (xmax, ymax), (xmin, ymax), (xmin, ymin), (xmax, ymin)])
+    ######->>2x(xmax, ymin)
 
     if mode == 'Model':
         return xmin, ymax
@@ -148,7 +136,8 @@ def create_bounding_box(longitude, latitude, mode):
 
 
 def aggregator(bboxes):
-
+    #STEP 1 (ONLY IF NOT USING BIG QUERY)
+    # LOADING DATAFRAME ######
     df = pd.read_csv('df_eighth.csv')
     ###########
 
@@ -157,8 +146,8 @@ def aggregator(bboxes):
     df['longitude'],
     df['latitude']
     ))
-
-    # Create a Polygon object for the area of interest
+    ##
+    # Create a Polygon object for the area of interest, using the bboxes-tuple
 
     polygon = Polygon(bboxes)
     # Filter points that fall within the polygon
