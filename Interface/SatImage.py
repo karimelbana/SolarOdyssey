@@ -1,4 +1,6 @@
 import requests
+import geopandas as gpd #####added libraries
+from shapely.geometry import Point, Polygon, box ##### added shapely.geometry.Polygon
 from shapely.geometry import Point
 from oauthlib.oauth2 import BackendApplicationClient
 from requests_oauthlib import OAuth2Session
