@@ -2,6 +2,7 @@ from google.cloud import bigquery
 import pandas as pd
 
 # UPLOAD DATA TO BQ
+
 PROJECT = "my-project"
 DATASET = "taxifare_lecture"
 TABLE = "lecture_data"
