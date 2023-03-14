@@ -59,7 +59,7 @@ def get_map(center_map):
             fill=False
         ).add_to(map)
 
-    return map
+    return map, bounding_box
 
 @st.cache_data
 def init_api():
@@ -131,7 +131,7 @@ def main():
     map_placeholder = st.empty()
 
     # Display a map where users can select an area
-    m = get_map(st.session_state["center"])
+    m, bounding_box = get_map(st.session_state["center"])
 
     # Display the map
     with map_placeholder.container():
@@ -195,7 +195,7 @@ def main():
         st.write('Right button clicked!')
 
         ### Displaying demographic data of the selected bounding_box
-        summary = aggregator()
+        summary = aggregator(bounding_box)
 
         #summary_df = pd.DataFrame(summary)
 
