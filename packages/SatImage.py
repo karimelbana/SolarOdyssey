@@ -131,3 +131,28 @@ def create_bounding_box(longitude, latitude, mode):
         return xmin, ymax
     else:
         return bboxes
+
+
+
+def aggregator(bboxes):
+
+    df = pd.read_csv('df_eighth.csv')
+    ###########
+
+    # Transform csv in GeoDataFrame from the DataFrame by specifying the geometry column
+    gdf_points = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(
+    df['longitude'],
+    df['latitude']
+    ))
+
+    # Create a Polygon object for the area of interest
+
+    polygon = Polygon(bboxes)
+    # Filter points that fall within the polygon
+    points_within_polygon = gdf_points[gdf_points.within(polygon)]
+    summary_stats = points_within_polygon.agg({'Population': ['sum'],
+                                           'Women': ['sum'],
+                                           'Children (<5 years)':['sum'],
+                                           'Youth (15-24 years)':['sum']}
+                                            ).round().astype(int)
+    return summary_stats
