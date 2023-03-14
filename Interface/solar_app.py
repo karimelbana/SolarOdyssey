@@ -9,9 +9,11 @@ from PIL import Image
 from SatImage import get_sat_image_model, initialize_api, create_bounding_box
 from dotenv import load_dotenv
 import os
+import requests
+import tempfile
 
 # Load Logo
-with open("/Users/arnoud/code/karimelbana/SolarOdyssey/logo/icon.svg", "r") as f:
+with open("icon.svg", "r") as f:
     svg_content = f.read()
 
 # Encode the SVG content using base64
@@ -66,9 +68,9 @@ def main():
 
     # Logo loading
     try:
-        logo = Image.open('/Users/arnoud/code/karimelbana/SolarOdyssey/logo/SolarOdyssey_Logo.png')
+        logo = Image.open('SolarOdyssey_Logo.png')
     except FileNotFoundError:
-        logo = Image.open('/Users/arnoud/code/karimelbana/SolarOdyssey/logo/SolarOdyssey_Logo.png')
+        logo = Image.open('SolarOdyssey_Logo.png')
 
     # Init Variables
     default_values = {'markers': [],
@@ -126,6 +128,8 @@ def main():
 
     map_placeholder = st.empty()
 
+
+
     # Display a map where users can select an area
     m = get_map(st.session_state["center"])
 
@@ -169,7 +173,6 @@ def main():
     #Create a button that users can click to obtain the satellite image and NDVI calculation
     if col1.button("Get Satellite Image and Predict"):
 
-
         model_load_state = st.info(f"Loading Satellite Image...")
 
         # Set the value of 'coordinates'
@@ -182,9 +185,13 @@ def main():
         expander = st.expander("See explanation")
         expander.image(image, caption="Satellite Image", use_column_width=True)
 
+        # Prediction
+        wagon_cab_api_url = 'https://solarodyssey-api-m6bgenzluq-uc.a.run.app/predict'
+        response = requests.get(wagon_cab_api_url, filename)
 
-        # prediction = model_predict(model_path, filename)
-        # st.write(prediction)
+        prediction = response.json()
+
+        st.header(f'Fare amount: {prediction}')
 
     # Add a button to the right column
     if col2.button('Right Button'):
