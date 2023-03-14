@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 from folium.plugins import Draw
 from streamlit_folium import st_folium
 import folium
