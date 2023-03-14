@@ -15,7 +15,7 @@ import os
 nl = '\n'
 
 # Load Logo
-with open("logo/icon.svg", "r") as f:
+with open("/Users/arnoud/code/karimelbana/SolarOdyssey/logo/icon.svg", "r") as f:
     svg_content = f.read()
 
 # Encode the SVG content using base64
@@ -28,9 +28,9 @@ st.set_page_config(
         layout="wide",
         initial_sidebar_state="expanded",
         menu_items={
-            'Get Help': 'https://www.extremelycoolapp.com/help',
-            'Report a bug': "https://www.extremelycoolapp.com/bug",
-            'About': "# This is a header. This is an *extremely* cool app!"
+            'Get Help': 'https://www.chat.openai.com',
+            'Report a bug': "https://www.chat.openai.com",
+            'About': "# cool app, eh?"
         }
 )
 
@@ -70,9 +70,9 @@ def main():
 
     # Logo loading
     try:
-        logo = Image.open('logo/SolarOdyssey_Logo.png')
+        logo = Image.open('/Users/arnoud/code/karimelbana/SolarOdyssey/logo/SolarOdyssey_Logo.png')
     except FileNotFoundError:
-        logo = Image.open('SolarOdyssey_Logo.png')
+        logo = Image.open('/Users/arnoud/code/karimelbana/SolarOdyssey/logo/SolarOdyssey_Logo.png')
 
     # Init Variables
     default_values = {'markers': [],
@@ -91,16 +91,16 @@ def main():
 
     session, Project = init_api()
 
-    st.markdown(
-        """
-        <style>
-        #root > div:nth-child(1) > div > div.css-1d6fzt {
-            display: none;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
+    # st.markdown(
+    #     """
+    #     <style>
+    #     #root > div:nth-child(1) > div > div.css-1d6fzt {
+    #         display: none;
+    #     }
+    #     </style>
+    #     """,
+    #     unsafe_allow_html=True
+    # )
 
     # Sidebar
     st.sidebar.image(logo, use_column_width=True, output_format='PNG', width=0.5)
@@ -179,7 +179,7 @@ def main():
         # Set the value of 'coordinates'
         st.session_state['coordinates'] = [output['last_object_clicked']['lng'],output['last_object_clicked']['lat']]
 
-        filename = get_sat_image_model(session, Project,st.session_state['coordinates'][0],st.session_state['coordinates'][1], "Display")
+        filename = get_sat_image_model(session, Project,st.session_state['coordinates'][0],st.session_state['coordinates'][1])
         image = Image.open(filename)
 
         model_load_state.empty()

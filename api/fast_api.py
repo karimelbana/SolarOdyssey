@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
 
-#Optional, good practice for dev purposes. Allow all middlewares
+#Optional, good practice for dev purposes. Allow all middlewares .
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allows all origins
@@ -20,7 +20,7 @@ app.add_middleware(
 )
 
 # 💡 Preload the model to accelerate the predictions
-model_path = "model/solar_model.h5"
+model_path = "Interface/the_best_model.h5"
 app.state.model = load_model(model_path)
 
 @app.get("/predict")

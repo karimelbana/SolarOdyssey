@@ -34,7 +34,7 @@ def initialize_api():
     return session, Project
 
 
-def get_sat_image_model(session, Project, latitude, longitude, mode):
+def get_sat_image_model(session, Project, latitude, longitude):
 
     # Create a square bounding box around the Lat / Lon
     xmin, ymax = create_bounding_box(latitude, longitude, "Model")
@@ -99,18 +99,18 @@ def get_sat_image_model(session, Project, latitude, longitude, mode):
 
     image_content = response.content
 
-    if mode == 'Model':
-        # Generate the filename
-        filename = "trial/{}.png".format(latitude)
-        # Save the image data to file
-        with open(filename, "wb") as f:
-            f.write(image_content)
-    else:
-        # Generate the filename
-        filename = "site/{},{}.png".format(latitude,longitude)
-        with open(filename, "wb") as f:
-            f.write(image_content)
-            return filename
+    # if mode == 'Model':
+    #     # Generate the filename
+    #     filename = "temp/{},{}.png".format(latitude,longitude)
+    #     # Save the image data to file
+    #     with open(filename, "wb") as f:
+    #         f.write(image_content)
+    # else:
+    # Generate the filename
+    filename = "Interface/temp/{},{}.png".format(latitude,longitude)
+    with open(filename, "wb") as f:
+        f.write(image_content)
+        return filename
 
 def create_bounding_box(longitude, latitude, mode):
     # Define the point and square side length
