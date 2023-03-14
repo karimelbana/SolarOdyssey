@@ -9,6 +9,7 @@ bin-release/
 data/
 key.json
 .env
+.DS_Store
 
 # Executables
 *.swf
