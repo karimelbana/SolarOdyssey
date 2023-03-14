@@ -9,6 +9,7 @@ bin-release/
 data/
 key.json
 .env
+Interface/.streamlit/
 
 # Executables
 *.swf
