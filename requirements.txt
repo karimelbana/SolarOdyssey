@@ -15,4 +15,3 @@ streamlit
 streamlit_folium
 folium
 requests
-tempfile
