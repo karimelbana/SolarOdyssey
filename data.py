@@ -7,7 +7,6 @@ PROJECT = "my-project"
 DATASET = "taxifare_lecture"
 TABLE = "lecture_data"
 
-
 # Should probably be set in a config file
 credentials_path = 'path/to/credentials.json'
 project_id = 'your-project-id'
