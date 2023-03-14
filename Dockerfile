@@ -6,7 +6,7 @@ FROM tensorflow/tensorflow:2.10.0
 
 RUN pip install --upgrade pip
 
-COPY requirements_docker.txt requirements.txt
+COPY requirements.txt requirements.txt
 COPY api api
 
 COPY Interface Interface
