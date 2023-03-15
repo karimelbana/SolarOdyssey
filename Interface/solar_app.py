@@ -177,6 +177,19 @@ def main():
     #Create a button that users can click to obtain the satellite image and NDVI calculation
     if col1.button("Get Satellite Image and Predict"):
 
+        m, bounding_box = get_map(st.session_state["center"])
+
+        # Display the map
+        with map_placeholder.container():
+            output = st_folium(
+                                m,
+                                center=st.session_state["center"],
+                                zoom=st.session_state["zoom"],
+                                key="NigeriaMap",
+                                height=600,
+                                width=800
+                            )
+
         model_load_state = st.info(f"Loading Satellite Image...")
 
         # Set the value of 'coordinates'
@@ -188,13 +201,6 @@ def main():
         model_load_state.empty()
         expander = st.expander("See explanation")
         expander.image(image, caption="Satellite Image", use_column_width=True)
-
-        # Prediction
-        # wagon_cab_api_url = 'https://solarodyssey-api-m6bgenzluq-uc.a.run.app/predict'
-        # response = requests.get(wagon_cab_api_url, filename)
-
-        # prediction = response.json()
-        # st.write(filename)
 
         url = "http://localhost:8000/predict"
         files = {"file": ("image.png", open(filename, "rb"), filename)}
