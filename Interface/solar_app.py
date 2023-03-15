@@ -13,6 +13,8 @@ import requests
 import tempfile
 from io import BytesIO
 
+
+
 ####variable for breaks in f-string
 nl = '\n'
 
@@ -125,7 +127,6 @@ def main():
     m = get_map(st.session_state["center"])
 
     output = st_folium(
-
                             m,
                             center=st.session_state["center"],
                             zoom=st.session_state["zoom"],
@@ -134,8 +135,14 @@ def main():
                             width=800
                         )
 
+
+
     try:
         coordinates = output["last_clicked"]
+        marker = folium.Marker(location=[coordinates["lat"], coordinates["lng"]])
+
+        # Add the marker to the map
+        m.add_child(marker)
     except:
         pass
 
