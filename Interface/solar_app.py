@@ -120,12 +120,10 @@ def main():
 
 
 
-# Fix 2
 
     # Display a map where users can select an area
     m = get_map(st.session_state["center"])
 
-# Fix 3
     output = st_folium(
 
                             m,
@@ -135,6 +133,11 @@ def main():
                             height=600,
                             width=800
                         )
+
+    try:
+        coordinates = output["last_clicked"]
+    except:
+        pass
 
 
     try:
@@ -153,7 +156,6 @@ def main():
     #Create a button that users can click to obtain the satellite image and NDVI calculation
     if col1.button("Get Satellite Image and Predict"):
 
-# Fix 4
         # Set the value of 'coordinates'
         st.session_state['coordinates'] = [output['last_object_clicked']['lng'],output['last_object_clicked']['lat']]
 
