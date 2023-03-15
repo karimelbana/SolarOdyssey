@@ -78,9 +78,9 @@ def main():
 
     # Logo loading
     try:
-        logo = Image.open('SolarOdyssey_Logo.png')
+        logo = Image.open(os.path.join(path,'SolarOdyssey_Logo.png'))
     except FileNotFoundError:
-        logo = Image.open('SolarOdyssey_Logo.png')
+        logo = Image.open(os.path.join(path,'SolarOdyssey_Logo.png'))
 
     # Init Variables
     default_values = {'markers': [],
