@@ -36,6 +36,8 @@ st.set_page_config(
         }
 )
 
+
+
 # Maps
 @st.cache_resource
 def get_map(center_map):
@@ -48,20 +50,21 @@ def get_map(center_map):
 
     Draw(export=True).add_to(map)
 
-    bounding_box = []
-    # Define the bounding box coordinates
-    if st.session_state['coordinates'] is not None:
-        bounding_box = create_bounding_box(st.session_state['coordinates'][1], st.session_state['coordinates'][0], "Display")
+    # bounding_box = []
+    # # Define the bounding box coordinates
+    # if st.session_state['coordinates'] is not None:
+    #     bounding_box = create_bounding_box(st.session_state['coordinates'][1], st.session_state['coordinates'][0], "Display")
 
-        # Add the bounding box to the map
-        folium.Polygon(
-            locations=bounding_box,
-            popup="2km x 2km Bounding Box",
-            color='red',
-            fill=False
-        ).add_to(map)
+    #     # Add the bounding box to the map
+    #     folium.Polygon(
+    #         locations=bounding_box,
+    #         popup="2km x 2km Bounding Box",
+    #         color='red',
+    #         fill=False
+    #     ).add_to(map)
 
-    return map, bounding_box
+    return map #, bounding_box
+
 
 def init_api():
     session = initialize_api(dict(st.secrets['GCP']))
@@ -93,17 +96,6 @@ def main():
 
     session, Project = init_api()
 
-    # st.markdown(
-    #     """
-    #     <style>
-    #     #root > div:nth-child(1) > div > div.css-1d6fzt {
-    #         display: none;
-    #     }
-    #     </style>
-    #     """,
-    #     unsafe_allow_html=True
-    # )
-
     # Sidebar
     st.sidebar.image(logo, use_column_width=True, output_format='PNG', width=0.5)
     st.sidebar.title("Energy Prediction Demo")
@@ -115,14 +107,7 @@ def main():
     \n\n\n\n
     """
     )
-    # """"
-    # Welcome to SolarOdyssey!
-    # Our mission is to bring clean and sustainable energy to rural villages.
-    # Using advanced satellite imaging technology and machine learning algorithms,
-    # we have developed a model that can accurately predict the energy demand of a village.
-    # Our innovative approach is designed to help these communities meet their energy needs while minimizing their impact on the environment.
-    # Join us on this journey as we work towards a brighter future for everyone.
-    # """
+
     st.sidebar.info(
     """
     - [GitHub Repo](https://github.com/karimelbana/SolarOdyssey)
@@ -132,14 +117,10 @@ def main():
 
 
 
-    map_placeholder = st.empty()
-
     # Display a map where users can select an area
-    m, bounding_box = get_map(st.session_state["center"])
+    m = get_map(st.session_state["center"])
 
-    # Display the map
-    with map_placeholder.container():
-        output = st_folium(
+    output = st_folium(
                             m,
                             center=st.session_state["center"],
                             zoom=st.session_state["zoom"],
@@ -147,25 +128,13 @@ def main():
                             height=600,
                             width=800
                         )
-        #st.write(output)
 
-    # try:
-    #     if len(output["all_drawings"]) == 1:
 
-    #         try:
-    #             if output["last_active_drawing"]["geometry"]["type"] == "Point":
-    #                 st.session_state['coordinates'] = output["last_active_drawing"]["geometry"]["coordinates"]
-    #         except TypeError:
-    #             st.session_state['coordinates'] = None
-
-    #         # Reset the map to its initial state
-    #         m = get_map()
-
-    #     else:
-    #         st.write("Please make sure that you only have one Point/Marker on the map.")
-    # except:
-    #     st.write("")
-
+    try:
+        # Set the value of 'coordinates'
+        st.session_state['coordinates'] = [output['last_object_clicked']['lng'],output['last_object_clicked']['lat']]
+    except:
+        st.session_state['coordinates'] = None
 
     # Display the message and the coordinates
     st.text("You have selected the following coordinates:")
@@ -177,40 +146,21 @@ def main():
     #Create a button that users can click to obtain the satellite image and NDVI calculation
     if col1.button("Get Satellite Image and Predict"):
 
-         # Display a map where users can select an area
-        m, bounding_box = get_map(st.session_state["center"])
+        # Set the value of 'coordinates'
+        st.session_state['coordinates'] = [output['last_object_clicked']['lng'],output['last_object_clicked']['lat']]
 
-        # Display the map
-        with map_placeholder.container():
-            output = st_folium(
-                                m,
-                                center=st.session_state["center"],
-                                zoom=st.session_state["zoom"],
-                                key="NigeriaMap",
-                                height=600,
-                                width=800
-                            )
 
         model_load_state = st.info(f"Loading Satellite Image...")
 
-        # Set the value of 'coordinates'
-        st.session_state['coordinates'] = [output['last_object_clicked']['lng'],output['last_object_clicked']['lat']]
 
         filename = get_sat_image_model(session, Project,st.session_state['coordinates'][0],st.session_state['coordinates'][1])
         image = Image.open(filename)
 
         model_load_state.empty()
-        expander = st.expander("See explanation")
-        expander.image(image, caption="Satellite Image", use_column_width=True)
+        expander = st.expander("Show Satellite Image")
+        expander.image(image, caption=st.session_state["coordinates"], use_column_width=True)
 
-        # Prediction
-        # wagon_cab_api_url = 'https://solarodyssey-api-m6bgenzluq-uc.a.run.app/predict'
-        # response = requests.get(wagon_cab_api_url, filename)
-
-        # prediction = response.json()
-        # st.write(filename)
-
-        url = "http://localhost:8000/predict"
+        url = "https://solar-api-m6bgenzluq-ew.a.run.app/predict"
         files = {"file": ("image.png", open(filename, "rb"), filename)}
         response = requests.post(url, files=files)
 
