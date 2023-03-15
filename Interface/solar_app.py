@@ -37,7 +37,7 @@ st.set_page_config(
 )
 
 # Maps
-#@st.cache_resource
+@st.cache_resource
 def get_map(center_map):
 
     # Create a MapBox map using folium
