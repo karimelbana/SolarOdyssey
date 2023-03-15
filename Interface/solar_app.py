@@ -164,7 +164,7 @@ def main():
     #     else:
     #         st.write("Please make sure that you only have one Point/Marker on the map.")
     # except:
-    #     st.write("")
+    #     st.write("")asdas
 
 
     # Display the message and the coordinates
