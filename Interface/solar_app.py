@@ -15,9 +15,9 @@ from io import BytesIO
 
 ####variable for breaks in f-string
 nl = '\n'
-
+path = os.path.abspath(os.path.dirname(__file__))
 # Load Logo
-with open("icon.svg", "r") as f:
+with open(os.path.join(path, "icon.svg"), "r") as f:
     svg_content = f.read()
 
 # Encode the SVG content using base64
@@ -78,9 +78,9 @@ def main():
 
     # Logo loading
     try:
-        logo = Image.open('SolarOdyssey_Logo.png')
+        logo = Image.open(os.path.join(path,'SolarOdyssey_Logo.png'))
     except FileNotFoundError:
-        logo = Image.open('SolarOdyssey_Logo.png')
+        logo = Image.open(os.path.join(path,'SolarOdyssey_Logo.png'))
 
     # Init Variables
     default_values = {'markers': [],
@@ -174,7 +174,10 @@ def main():
 
         if response.status_code == 200:
             prediction = response.json()
-            st.header(f'Energy Prediction: {prediction}')
+            if prediction < 0:
+                st.header(f'There are no villages within the selected area')
+            else:
+                st.header(f'Energy Prediction: {prediction} kWh per day')
         else:
             st.header(f"Error: {response.text}")
 
@@ -183,7 +186,10 @@ def main():
     if col2.button('Display Socio-Economic Data'):
 
         ### Displaying demographic data of the selected bounding_box
-        summary = aggregator(bounding_box)
+        bounding_box, polygon = create_bounding_box(st.session_state['coordinates'][0],st.session_state['coordinates'][1],"display")
+
+        ### Displaying demographic data of the selected bounding_box
+        summary = aggregator(polygon)
 
         #summary_df = pd.DataFrame(summary)
 
