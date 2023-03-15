@@ -174,7 +174,7 @@ def main():
 
         if response.status_code == 200:
             prediction = response.json()
-            st.header(f'Energy Prediction: {prediction}')
+            st.header(f'Energy Prediction: {prediction} kWh per day')
         else:
             st.header(f"Error: {response.text}")
 
