@@ -142,6 +142,11 @@ def create_bounding_box(longitude, latitude, mode):
     bboxes = []
     bboxes.append([(xmax, ymin), (xmax, ymax), (xmin, ymax), (xmin, ymin), (xmax, ymin)])
 
+    #Create polygon
+    # Create polygon for gdf
+    polygon = Polygon([(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]) ######Creating a polygon within the function
+    return bboxes, polygon
+
     if mode == 'Model':
         return xmin, ymax
     else:
@@ -149,7 +154,7 @@ def create_bounding_box(longitude, latitude, mode):
 
 
 
-def aggregator(bboxes):
+def aggregator(polygon):
 
     df = pd.read_csv('df_16.csv')
     ###########
@@ -160,9 +165,6 @@ def aggregator(bboxes):
     df['latitude']
     ))
 
-    # Create a Polygon object for the area of interest
-
-    polygon = Polygon(bboxes)
     # Filter points that fall within the polygon
     points_within_polygon = gdf_points[gdf_points.within(polygon)]
     summary_stats = points_within_polygon.agg({'Population': ['sum'],
