@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 import os
 import requests
 import tempfile
+from io import BytesIO
 
 ####variable for breaks in f-string
 nl = '\n'
@@ -62,9 +63,9 @@ def get_map(center_map):
 
     return map, bounding_box
 
-@st.cache_data
 def init_api():
-    session, Project = initialize_api()
+    session = initialize_api(dict(st.secrets['GCP']))
+    Project = st.secrets['PROJECT']
     return session, Project
 
 def main():
@@ -129,9 +130,9 @@ def main():
     """
     )
 
+
+
     map_placeholder = st.empty()
-
-
 
     # Display a map where users can select an area
     m, bounding_box = get_map(st.session_state["center"])
@@ -176,6 +177,20 @@ def main():
     #Create a button that users can click to obtain the satellite image and NDVI calculation
     if col1.button("Get Satellite Image and Predict"):
 
+         # Display a map where users can select an area
+        m, bounding_box = get_map(st.session_state["center"])
+
+        # Display the map
+        with map_placeholder.container():
+            output = st_folium(
+                                m,
+                                center=st.session_state["center"],
+                                zoom=st.session_state["zoom"],
+                                key="NigeriaMap",
+                                height=600,
+                                width=800
+                            )
+
         model_load_state = st.info(f"Loading Satellite Image...")
 
         # Set the value of 'coordinates'
@@ -189,16 +204,25 @@ def main():
         expander.image(image, caption="Satellite Image", use_column_width=True)
 
         # Prediction
-        wagon_cab_api_url = 'https://solarodyssey-api-m6bgenzluq-uc.a.run.app/predict'
-        response = requests.get(wagon_cab_api_url, filename)
+        # wagon_cab_api_url = 'https://solarodyssey-api-m6bgenzluq-uc.a.run.app/predict'
+        # response = requests.get(wagon_cab_api_url, filename)
 
-        prediction = response.json()
+        # prediction = response.json()
+        # st.write(filename)
 
-        st.header(f'Fare amount: {prediction}')
+        url = "http://localhost:8000/predict"
+        files = {"file": ("image.png", open(filename, "rb"), filename)}
+        response = requests.post(url, files=files)
+
+        if response.status_code == 200:
+            prediction = response.json()
+            st.header(f'Energy Prediction: {prediction}')
+        else:
+            st.header(f"Error: {response.text}")
+
 
     # Add a button to the right column
-    if col2.button('Right Button'):
-        st.write('Right button clicked!')
+    if col2.button('Display Socio-Economic Data'):
 
         ### Displaying demographic data of the selected bounding_box
         summary = aggregator(bounding_box)

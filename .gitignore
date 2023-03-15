@@ -10,9 +10,14 @@ data/
 key.json
 .env
 Interface/secrets.json
+Interface/__pycache__/
+api/__pycache__/
 
 .DS_Store
 Interface/.streamlit/
+Interface/__pycache__
+api/__pycache__
+
 
 
 
