@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import random
 from PIL import Image
 from tensorflow.keras.applications.densenet import preprocess_input as preprocess_input_densenet
 from tensorflow.keras.models import load_model
@@ -48,4 +49,6 @@ async def predict(file: UploadFile = File(...)):
 
 @app.get("/")
 def root():
-    return dict(greeting="Aloha")
+    string_list = ["Hello there", "Bawo ni", "Mesiere", "Kedu", "Kóyo", "Sannu", "Abole", "Mavo"]
+    random_string = random.choice(string_list)
+    return dict(greeting=random_string)
