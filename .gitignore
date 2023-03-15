@@ -10,6 +10,9 @@ data/
 key.json
 .env
 Interface/.streamlit/
+Interface/__pycache__
+api/__pycache__
+
 
 # Executables
 *.swf
