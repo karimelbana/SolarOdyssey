@@ -138,7 +138,7 @@ def create_bounding_box(longitude, latitude, mode):
 
 def aggregator(bboxes):
 
-    df = pd.read_csv('df_eighth.csv')
+    df = pd.read_csv('df_16.csv')
     ###########
 
     # Transform csv in GeoDataFrame from the DataFrame by specifying the geometry column
