@@ -1,4 +1,6 @@
 import requests
+import geopandas as gpd #####added libraries
+from shapely.geometry import Point, Polygon, box ##### added shapely.geometry.Polygon
 from shapely.geometry import Point
 from oauthlib.oauth2 import BackendApplicationClient
 from requests_oauthlib import OAuth2Session
@@ -140,7 +142,34 @@ def create_bounding_box(longitude, latitude, mode):
     bboxes = []
     bboxes.append([(xmax, ymin), (xmax, ymax), (xmin, ymax), (xmin, ymin), (xmax, ymin)])
 
+    #Create polygon
+    # Create polygon for gdf
+    polygon = Polygon([(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]) ######Creating a polygon within the function
+    return bboxes, polygon
+
     if mode == 'Model':
         return xmin, ymax
     else:
         return bboxes
+
+
+
+def aggregator(polygon):
+
+    df = pd.read_csv('df_16.csv')
+    ###########
+
+    # Transform csv in GeoDataFrame from the DataFrame by specifying the geometry column
+    gdf_points = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(
+    df['longitude'],
+    df['latitude']
+    ))
+
+    # Filter points that fall within the polygon
+    points_within_polygon = gdf_points[gdf_points.within(polygon)]
+    summary_stats = points_within_polygon.agg({'Population': ['sum'],
+                                           'Women': ['sum'],
+                                           'Children (<5 years)':['sum'],
+                                           'Youth (15-24 years)':['sum']}
+                                            ).round().astype(int)
+    return summary_stats
