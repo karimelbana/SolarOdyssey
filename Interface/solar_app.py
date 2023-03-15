@@ -37,7 +37,7 @@ st.set_page_config(
 )
 
 # Maps
-@st.cache_resource
+#@st.cache_resource
 def get_map(center_map):
 
     # Create a MapBox map using folium
@@ -130,9 +130,9 @@ def main():
     """
     )
 
+
+
     map_placeholder = st.empty()
-
-
 
     # Display a map where users can select an area
     m, bounding_box = get_map(st.session_state["center"])
@@ -176,6 +176,20 @@ def main():
 
     #Create a button that users can click to obtain the satellite image and NDVI calculation
     if col1.button("Get Satellite Image and Predict"):
+
+         # Display a map where users can select an area
+        m, bounding_box = get_map(st.session_state["center"])
+
+        # Display the map
+        with map_placeholder.container():
+            output = st_folium(
+                                m,
+                                center=st.session_state["center"],
+                                zoom=st.session_state["zoom"],
+                                key="NigeriaMap",
+                                height=600,
+                                width=800
+                            )
 
         model_load_state = st.info(f"Loading Satellite Image...")
 
