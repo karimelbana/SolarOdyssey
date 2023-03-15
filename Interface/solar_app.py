@@ -166,7 +166,7 @@ def main():
 
         model_load_state.empty()
         expander = st.expander("Show Satellite Image")
-        expander.image(image, caption=st.session_state["coordinates"], use_column_width=True)
+        expander.image(image, caption="PLACEHOLDER LAT LON", use_column_width=True)
 
         url = "https://solar-api-m6bgenzluq-ew.a.run.app/predict"
         files = {"file": ("image.png", open(filename, "rb"), filename)}
