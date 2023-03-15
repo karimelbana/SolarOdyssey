@@ -47,9 +47,11 @@ def get_map(center_map):
                     zoom_start=st.session_state['zoom'],
                     scrollWheelZoom=True,
                     tiles="OpenStreetMap")
-
     Draw(export=True).add_to(map)
+    tiles_url = 'http://www.google.com/maps/vt/lyrs=s&x={x}&y={y}&z={z}'
+    tiles_attribution = 'Map data © Google'
 
+# Start Fixes
     # bounding_box = []
     # # Define the bounding box coordinates
     # if st.session_state['coordinates'] is not None:
@@ -62,6 +64,7 @@ def get_map(center_map):
     #         color='red',
     #         fill=False
     #     ).add_to(map)
+
 
     return map #, bounding_box
 
@@ -117,10 +120,14 @@ def main():
 
 
 
+# Fix 2
+
     # Display a map where users can select an area
     m = get_map(st.session_state["center"])
 
+# Fix 3
     output = st_folium(
+
                             m,
                             center=st.session_state["center"],
                             zoom=st.session_state["zoom"],
@@ -146,6 +153,7 @@ def main():
     #Create a button that users can click to obtain the satellite image and NDVI calculation
     if col1.button("Get Satellite Image and Predict"):
 
+# Fix 4
         # Set the value of 'coordinates'
         st.session_state['coordinates'] = [output['last_object_clicked']['lng'],output['last_object_clicked']['lat']]
 
