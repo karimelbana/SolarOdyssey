@@ -15,9 +15,9 @@ from io import BytesIO
 
 ####variable for breaks in f-string
 nl = '\n'
-
+path = os.path.abspath(os.path.dirname(__file__))
 # Load Logo
-with open("icon.svg", "r") as f:
+with open(os.path.join(path, "icon.svg"), "r") as f:
     svg_content = f.read()
 
 # Encode the SVG content using base64
