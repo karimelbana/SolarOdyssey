@@ -45,9 +45,12 @@ def get_map(center_map):
                     zoom_start=st.session_state['zoom'],
                     scrollWheelZoom=True,
                     tiles="OpenStreetMap")
-
     Draw(export=True).add_to(map)
+    tiles_url = 'http://www.google.com/maps/vt/lyrs=s&x={x}&y={y}&z={z}'
+    tiles_attribution = 'Map data © Google'
 
+    folium.TileLayer(tiles=tiles_url, attr=tiles_attribution, name= "Google Earth Satellite View").add_to(map)
+    folium.LayerControl().add_to(map)
     bounding_box = []
     # Define the bounding box coordinates
     if st.session_state['coordinates'] is not None:
@@ -132,10 +135,14 @@ def main():
 
 
 
+
     map_placeholder = st.empty()
+
 
     # Display a map where users can select an area
     m, bounding_box = get_map(st.session_state["center"])
+
+
 
     # Display the map
     with map_placeholder.container():
@@ -177,8 +184,12 @@ def main():
     #Create a button that users can click to obtain the satellite image and NDVI calculation
     if col1.button("Get Satellite Image and Predict"):
 
-         # Display a map where users can select an area
+        model_load_state = st.info(f"Loading Satellite Image...")
+
+        # Display a map where users can select an area
         m, bounding_box = get_map(st.session_state["center"])
+
+
 
         # Display the map
         with map_placeholder.container():
@@ -190,8 +201,6 @@ def main():
                                 height=600,
                                 width=800
                             )
-
-        model_load_state = st.info(f"Loading Satellite Image...")
 
         # Set the value of 'coordinates'
         st.session_state['coordinates'] = [output['last_object_clicked']['lng'],output['last_object_clicked']['lat']]
