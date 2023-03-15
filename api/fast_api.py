@@ -3,8 +3,8 @@ import numpy as np
 from PIL import Image
 from tensorflow.keras.applications.densenet import preprocess_input as preprocess_input_densenet
 from tensorflow.keras.models import load_model
-
-from fastapi import FastAPI
+from io import BytesIO
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -23,14 +23,19 @@ app.add_middleware(
 model_path = "Interface/the_best_model.h5"
 app.state.model = load_model(model_path)
 
-@app.get("/predict")
-def predict(filepath: str):  # image filepath
 
-    # Process user image
-    user_image_np = np.array(np.array(Image.open(filepath)))
+# Takes in a file and returns a prediction
+@app.post("/predict")
+async def predict(file: UploadFile = File(...)):
+    contents = await file.read()
 
-    user_image_preproc = preprocess_input_densenet(user_image_np)
-    to_predict = np.expand_dims(user_image_preproc, axis=0)
+    # Read the bytes back into an image format, then convert to a numpy array
+    image = np.array(Image.open(BytesIO(contents)))
+
+    #Preprocess the image
+    image_preproc = preprocess_input_densenet(image)
+
+    to_predict = np.expand_dims(image_preproc, axis=0)
 
     # Load model
     model = app.state.model
@@ -39,7 +44,7 @@ def predict(filepath: str):  # image filepath
     # Make prediction
     y_pred = model.predict(to_predict)
 
-    return round(y_pred[0][0],1)
+    return round(float(y_pred),2 )
 
 @app.get("/")
 def root():
