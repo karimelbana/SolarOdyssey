@@ -174,7 +174,10 @@ def main():
 
         if response.status_code == 200:
             prediction = response.json()
-            st.header(f'Energy Prediction: {prediction} kWh per day')
+            if prediction < 0:
+                st.header(f'There are no villages within the selected area')
+            else:
+                st.header(f'Energy Prediction: {prediction} kWh per day')
         else:
             st.header(f"Error: {response.text}")
 
