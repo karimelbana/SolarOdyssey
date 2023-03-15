@@ -165,9 +165,6 @@ def main():
         image = Image.open(filename)
 
         model_load_state.empty()
-        expander = st.expander("Show Satellite Image")
-        expander.image(image, caption="PLACEHOLDER LAT LON", use_column_width=True)
-
         url = "https://solar-api-m6bgenzluq-ew.a.run.app/predict"
         files = {"file": ("image.png", open(filename, "rb"), filename)}
         response = requests.post(url, files=files)
@@ -177,6 +174,11 @@ def main():
             st.header(f'Energy Prediction: {prediction}')
         else:
             st.header(f"Error: {response.text}")
+
+        expander = st.expander("Show Satellite Image")
+        expander.image(image, caption="PLACEHOLDER LAT LON", use_column_width=True)
+
+
 
 
     # Add a button to the right column
