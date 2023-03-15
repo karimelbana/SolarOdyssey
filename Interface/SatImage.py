@@ -18,43 +18,22 @@ import streamlit as st
 import tempfile
 import toml
 
-def initialize_api():
-    # Obtain a private key file for your service account
+def initialize_api(KEY):
+
     SERVICE_ACCOUNT = st.secrets["SERVICE_ACCOUNT"]
 
-    # Read in the secrets file
-    with open('.streamlit/secrets.toml', 'r') as f:
-        secrets = toml.load(f)
-
-    # Remove the "client_id" and "client_secret" keys from the dictionary
-    del secrets["SERVICE_ACCOUNT"]
-    del secrets["PROJECT"]
-
-    # Convert the remaining secrets to a JSON object
-    tfile = tempfile.NamedTemporaryFile(mode="w+")
-    json.dump(secrets, tfile)
-    # json.dump(secrets_json, tfile)
-    tfile.flush()
-    file_path = tfile.name
-
-    KEY = file_path
-
-    Project = st.secrets["PROJECT"]
-
     #Start an AuthorizedSession
-    credentials = service_account.Credentials.from_service_account_file(KEY)
+    credentials = service_account.Credentials.from_service_account_info(KEY)
     scoped_credentials = credentials.with_scopes(['https://www.googleapis.com/auth/cloud-platform'])
 
     session = AuthorizedSession(scoped_credentials)
 
-    print(session)
-
     # Get Earth Engine scoped credentials from the service account.
     # Use them to initialize Earth Engine.
-    ee_creds = ee.ServiceAccountCredentials(SERVICE_ACCOUNT, KEY)
-    ee.Initialize(ee_creds)
+    #ee_creds = ee.ServiceAccountCredentials(SERVICE_ACCOUNT, key_data=str(KEY))
+    ee.Initialize(scoped_credentials)
 
-    return session, Project
+    return session
 
 
 def get_sat_image_model(session, Project, latitude, longitude):
@@ -122,10 +101,18 @@ def get_sat_image_model(session, Project, latitude, longitude):
 
     image_content = response.content
 
-    filename = "Interface/temp/{},{}.png".format(latitude,longitude)
-    with open(filename, "wb") as f:
-        f.write(image_content)
-        return filename
+    # filename = "Interface/temp/{},{}.png".format(latitude,longitude)
+    # with open(filename, "wb") as f:
+    #     f.write(image_content)
+    #     return filename
+
+    # Create a temporary file with the specified suffix
+    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as temp_file:
+        temp_file.write(image_content)
+        temp_file.flush()
+        temp_filename = temp_file.name
+
+    return temp_filename
 
 def create_bounding_box(longitude, latitude, mode):
     # Define the point and square side length
@@ -142,14 +129,18 @@ def create_bounding_box(longitude, latitude, mode):
     bboxes = []
     bboxes.append([(xmax, ymin), (xmax, ymax), (xmin, ymax), (xmin, ymin), (xmax, ymin)])
 
+    #Create polygon
+    # Create polygon for gdf
+    polygon = Polygon([(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]) ######Creating a polygon within the function
+
     if mode == 'Model':
         return xmin, ymax
     else:
-        return bboxes
+        return bboxes, polygon
 
 
 
-def aggregator(bboxes):
+def aggregator(polygon):
 
     df = pd.read_csv('df_16.csv')
     ###########
@@ -160,9 +151,6 @@ def aggregator(bboxes):
     df['latitude']
     ))
 
-    # Create a Polygon object for the area of interest
-
-    polygon = Polygon(bboxes)
     # Filter points that fall within the polygon
     points_within_polygon = gdf_points[gdf_points.within(polygon)]
     summary_stats = points_within_polygon.agg({'Population': ['sum'],
