@@ -186,7 +186,10 @@ def main():
     if col2.button('Display Socio-Economic Data'):
 
         ### Displaying demographic data of the selected bounding_box
-        summary = aggregator(bounding_box)
+        bounding_box, polygon = create_bounding_box(st.session_state['coordinates'][0],st.session_state['coordinates'][1],"display")
+
+        ### Displaying demographic data of the selected bounding_box
+        summary = aggregator(polygon)
 
         #summary_df = pd.DataFrame(summary)
 
