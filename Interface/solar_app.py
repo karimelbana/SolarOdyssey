@@ -14,6 +14,7 @@ import requests
 import tempfile
 from io import BytesIO
 
+
 ####variable for breaks in f-string
 nl = '\n'
 path = os.path.abspath(os.path.dirname(__file__))
@@ -40,7 +41,6 @@ st.set_page_config(
 # Maps
 #@st.cache_resource
 def get_map(center_map):
-
     # Create a MapBox map using folium
     map = folium.Map(location=center_map,
                     zoom_start=st.session_state['zoom'],
@@ -52,6 +52,7 @@ def get_map(center_map):
                      tiles=tiles_url,
                      attr=tiles_attribution).add_to(map)
     folium.LayerControl(position="bottomleft").add_to(map)
+    folium.LatLngPopup().add_to(map)
 
     return map
 
@@ -69,7 +70,7 @@ def main():
         logo = Image.open(os.path.join(path,'SolarOdyssey_Logo.png'))
 
     # Init Variables
-    default_values = {'markers': [],
+    default_values = {
                     'center': [9.082000, 8.675300],
                     'zoom': 6,
                     'click_count': 0,
@@ -112,7 +113,7 @@ def main():
 
         # Display a map where users can select an area
         m = get_map(st.session_state["center"])
-
+#st_folium
         output = st_folium(
 
                                 m,
@@ -120,7 +121,7 @@ def main():
                                 zoom=st.session_state["zoom"],
                                 key="NigeriaMap",
                                 height=400,
-                                width=600
+                                width=500
                             )
 
 
@@ -129,6 +130,12 @@ def main():
             st.session_state['coordinates'] = [output['last_clicked']['lng'],output['last_clicked']['lat']]
         except:
             st.session_state['coordinates'] = None
+
+
+
+
+
+
     with col2:
         try:
             # Display the message and the coordinates
@@ -139,6 +146,10 @@ def main():
             st.subheader(f"Longitude: {st.session_state['coordinates'][0]}" )
         except:
             st.header("Click anywhere to select coordinates!")
+
+
+
+
 
     left, middle, right = st.columns(3)
     col3, col4 = st.columns(2, gap="large")
