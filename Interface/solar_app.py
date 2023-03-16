@@ -146,6 +146,19 @@ def main():
         #Create a button that users can click to obtain the satellite image and NDVI calculation
         if st.button("Predict Energy Demand And Load Data"):
 
+            ### Displaying demographic data of the selected bounding_box
+            bounding_box, polygon = create_bounding_box(st.session_state['coordinates'][0],st.session_state['coordinates'][1],"display")
+
+            ### Displaying demographic data of the selected bounding_box
+            summary = aggregator(polygon)
+
+            summary_df = pd.DataFrame(summary)
+
+            pop_sum = summary_df.loc['sum', 'Population']
+            women_sum = summary_df.loc['sum', 'Women']
+            children_sum = summary_df.loc['sum', 'Children (<5 years)']
+            youth_sum = summary_df.loc['sum', 'Youth (15-24 years)']
+
 
             with col3:
                 model_load_state = st.info(f"Loading Satellite Image...")
@@ -161,6 +174,8 @@ def main():
                     prediction = response.json()
                     if prediction < 0:
                         st.header(f'Energy Prediction: 0 kWh per day')
+                    if pop_sum == 0:
+                        st.header(f'Energy Prediction: 0 kWh per day')
                     else:
                         st.header(f'Energy Prediction: {prediction} kWh per day')
                 else:
@@ -174,35 +189,27 @@ def main():
                 # Add a button to the right column
                 data_load_state = st.info(f"Loading Populaton Data...")
 
-                ### Displaying demographic data of the selected bounding_box
-                bounding_box, polygon = create_bounding_box(st.session_state['coordinates'][0],st.session_state['coordinates'][1],"display")
 
-                ### Displaying demographic data of the selected bounding_box
-                summary = aggregator(polygon)
-
-                summary_df = pd.DataFrame(summary)
-
-                pop_sum = summary_df.loc['sum', 'Population']
-                women_sum = summary_df.loc['sum', 'Women']
-                children_sum = summary_df.loc['sum', 'Children (<5 years)']
-                youth_sum = summary_df.loc['sum', 'Youth (15-24 years)']
                 data_load_state.empty()
 
                 st.markdown(f" ## Demographics of the selected frame{nl}")
-                st.dataframe(summary)
-
-                source = pd.DataFrame({
-                    'Demographic':['General Population', 'Women', 'Men', 'Children (<5 years)',
+                if pop_sum == 0:
+                    st.markdown(f" ### No population data for the selected frame{nl}")
+                else:
+                    st.markdown(f"### Daily per Capita Electricity consumption:{round(prediction/pop_sum, 3).astype(float)} kWh")
+                    st.dataframe(summary)
+                    source = pd.DataFrame({
+                        'Demographic':['General Population', 'Women', 'Men', 'Children (<5 years)',
                         'Youth (15-24 years)'],
-                    'Count':[ pop_sum , women_sum,(pop_sum - women_sum),
-                        children_sum, youth_sum]})
+                        'Count':[ pop_sum , women_sum,(pop_sum - women_sum),
+                                 children_sum, youth_sum]})
 
-                chart = alt.Chart(source).mark_bar().encode(
-                    alt.X('Demographic',sort=None),
-                    alt.Y('Count'),
-                    color=alt.Color('Demographic')).properties(width=500,height=400)
+                    chart = alt.Chart(source).mark_bar().encode(
+                        alt.X('Demographic',sort=None),
+                        alt.Y('Count'),
+                        color=alt.Color('Demographic')).properties(width=500,height=400)
 
-                st.altair_chart(chart, theme="streamlit", use_container_width=False)
+                    st.altair_chart(chart, theme="streamlit", use_container_width=False)
 
 if __name__ == '__main__':
     main()
