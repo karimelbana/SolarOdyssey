@@ -1,4 +1,5 @@
 import streamlit as st
+import altair as alt ########################
 import pandas as pd
 from folium.plugins import Draw
 from streamlit_folium import st_folium
@@ -191,27 +192,39 @@ def main():
         ### Displaying demographic data of the selected bounding_box
         summary = aggregator(polygon)
 
-        #summary_df = pd.DataFrame(summary)
+        summary_df = pd.DataFrame(summary)
 
-        #pop_sum = summary_df.loc['sum', 'Population']
-        #women_sum = summary_df.loc['sum', 'Women']
-        #children_sum = summary_df.loc['sum', 'Children (<5 years)']
-        #youth_sum = summary_df.loc['sum', 'Youth (15-24 years)']
-        #
+        pop_sum = summary_df.loc['sum', 'Population']
+        women_sum = summary_df.loc['sum', 'Women']
+        children_sum = summary_df.loc['sum', 'Children (<5 years)']
+        youth_sum = summary_df.loc['sum', 'Youth (15-24 years)']
+
         #Print the values to the console
         #
-        # #st.markdown(f" ## Demographics of the selected frame{nl}"
-        # f" #### Overall Population: {pop_sum}{nl}"
-        # f" #### Women: {women_sum} {nl}"
-        # f" ##### in percentage : {((women_sum / pop_sum)*100).round(1)}% {nl}"
-        # f" #### Children below the Age of 5 years: {children_sum} {nl}"
-        # f" ##### in percentage : {((children_sum / pop_sum)*100).round(1)} % {nl}"
-        # f" #### Youth (age 15 to 24): {youth_sum} {nl}"
-        # f" ##### in percentage : {((youth_sum / pop_sum)*100).round(1)} % {nl}")
-        #
+        #st.markdown(f" ## Demographics of the selected frame{nl}"
+        #f" #### Overall Population: {pop_sum}{nl}"
+        #f" #### Women: {women_sum} {nl}"
+        #f" ##### in percentage : {((women_sum / pop_sum)*100).round(1)}% {nl}"
+        #f" #### Children below the Age of 5 years: {children_sum} {nl}"
+        #f" ##### in percentage : {((children_sum / pop_sum)*100).round(1)} % {nl}"
+        #f" #### Youth (age 15 to 24): {youth_sum} {nl}"
+        #f" ##### in percentage : {((youth_sum / pop_sum)*100).round(1)} % {nl}")
+
         st.markdown(f" ## Demographics of the selected frame{nl}")
         st.dataframe(summary)
 
+        source = pd.DataFrame({
+            'Demographic':['General Population', 'Women', 'Men', 'Children (<5 years)',
+                 'Youth (15-24 years)'],
+            'Count':[ pop_sum , women_sum,(pop_sum - women_sum),
+                 children_sum, youth_sum]})
+
+        chart = alt.Chart(source).mark_bar().encode(
+            alt.X('Demographic',sort=None),
+            alt.Y('Count'),
+            color=alt.Color('Demographic')).properties(width=500,height=400)
+
+        st.altair_chart(chart, theme="streamlit", use_container_width=False)
 
 if __name__ == '__main__':
     main()
