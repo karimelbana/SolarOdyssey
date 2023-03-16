@@ -15,7 +15,7 @@ There are a few known issues with the Solar Odyssey project that should be taken
 The Solar Odyssey project was created by Batch 1142 of LeWagon Data Science Bootcamp in Berlin. The contributors to the project are:
 
     Karim Elbana
-    Arnoud de Haad
+    Arnoud de Haan
     Josef Perara
     Jonathan Büning
 
