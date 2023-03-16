@@ -40,23 +40,22 @@ st.set_page_config(
 
 
 # Maps
-@st.cache_resource
+#@st.cache_resource
 def get_map(center_map):
 
     # Create a MapBox map using folium
     map = folium.Map(location=center_map,
                     zoom_start=st.session_state['zoom'],
-                    scrollWheelZoom=True,
+                    scrollWheelZoom=False,
                     tiles="OpenStreetMap")
-    Draw(export=True).add_to(map)
     tiles_url = 'http://www.google.com/maps/vt/lyrs=s&x={x}&y={y}&z={z}'
     tiles_attribution = 'Map data © Google'
-    folium.TileLayer(tiles=tiles_url,
+    folium.TileLayer(name="Google Maps Satellite",
+                     tiles=tiles_url,
                      attr=tiles_attribution).add_to(map)
     folium.LayerControl().add_to(map)
 
-    return map #, bounding_box
-
+    return map
 
 def init_api():
     session = initialize_api(dict(st.secrets['GCP']))
@@ -109,113 +108,112 @@ def main():
 
 
 
-# Fix 2
-
-    # Display a map where users can select an area
-    m = get_map(st.session_state["center"])
-
-# Fix 3
-    output = st_folium(
-
-                            m,
-                            center=st.session_state["center"],
-                            zoom=st.session_state["zoom"],
-                            key="NigeriaMap",
-                            height=600,
-                            width=800
-                        )
-
-
-    try:
-        # Set the value of 'coordinates'
-        st.session_state['coordinates'] = [output['last_clicked']['lng'],output['last_clicked']['lat']]
-    except:
-        st.session_state['coordinates'] = None
-
-    try:
-        # Display the message and the coordinates
-        if st.session_state['coordinates']:
-
-            st.header("You have selected the following coordinates:")
-        st.header(f"Latitude: {st.session_state['coordinates'][1]}")
-        st.header(f"Longitude: {st.session_state['coordinates'][0]}" )
-    except:
-        st.header("You have not selected any coordinates yet.")
-
-    # Divide the app layout into two columns
     col1, col2 = st.columns(2)
 
-    #Create a button that users can click to obtain the satellite image and NDVI calculation
-    if col1.button("Get Satellite Image and Predict"):
+    with col1:
 
-        # Set the value of 'coordinates'
-        st.session_state['coordinates'] = [output['last_object_clicked']['lng'],output['last_object_clicked']['lat']]
+        # Display a map where users can select an area
+        m = get_map(st.session_state["center"])
+
+        output = st_folium(
+
+                                m,
+                                center=st.session_state["center"],
+                                zoom=st.session_state["zoom"],
+                                key="NigeriaMap",
+                                height=400,
+                                width=600
+                            )
 
 
-        model_load_state = st.info(f"Loading Satellite Image...")
+        try:
+            # Set the value of 'coordinates'
+            st.session_state['coordinates'] = [output['last_clicked']['lng'],output['last_clicked']['lat']]
+        except:
+            st.session_state['coordinates'] = None
+    with col2:
+        try:
+            # Display the message and the coordinates
+            if st.session_state['coordinates']:
+
+                st.header("Selected Coordinates:")
+            st.header(f"Latitude: {st.session_state['coordinates'][1]}")
+            st.header(f"Longitude: {st.session_state['coordinates'][0]}" )
+        except:
+            st.header("You have not selected any coordinates yet.")
+
+    left, middle, right = st.columns(3)
+    col3, col4 = st.columns(2)
+    with middle:
+        #Create a button that users can click to obtain the satellite image and NDVI calculation
+        if st.button("Get Satellite Image and Predict"):
 
 
-        filename = get_sat_image_model(session, Project,st.session_state['coordinates'][0],st.session_state['coordinates'][1])
-        image = Image.open(filename)
-        url = "https://solar-api-m6bgenzluq-ew.a.run.app/predict"
-        files = {"file": ("image.png", open(filename, "rb"), filename)}
-        response = requests.post(url, files=files)
+            with col3:
+                model_load_state = st.info(f"Loading Satellite Image...")
 
-        if response.status_code == 200:
-            prediction = response.json()
-            if prediction < 0:
-                st.header(f'Energy Prediction: 0 kWh per day')
-            else:
-                st.header(f'Energy Prediction: {prediction} kWh per day')
-        else:
-            st.header(f"Error: {response.text}")
 
-        model_load_state.empty()
-        expander = st.expander("Show Satellite Image")
-        expander.image(image, caption=f"Latitude: {st.session_state['coordinates'][1]} Longitude: {st.session_state['coordinates'][0]}", use_column_width=True)
+                filename = get_sat_image_model(session, Project,st.session_state['coordinates'][0],st.session_state['coordinates'][1])
+                image = Image.open(filename)
+                url = "https://solar-api-m6bgenzluq-ew.a.run.app/predict"
+                files = {"file": ("image.png", open(filename, "rb"), filename)}
+                response = requests.post(url, files=files)
 
-    # Add a button to the right column
-    if col2.button('Display Socio-Economic Data'):
+                if response.status_code == 200:
+                    prediction = response.json()
+                    if prediction < 0:
+                        st.header(f'Energy Prediction: 0 kWh per day')
+                    else:
+                        st.header(f'Energy Prediction: {prediction} kWh per day')
+                else:
+                    st.header(f"Error: {response.text}")
 
-        ### Displaying demographic data of the selected bounding_box
-        bounding_box, polygon = create_bounding_box(st.session_state['coordinates'][0],st.session_state['coordinates'][1],"display")
+                model_load_state.empty()
+                image = Image.open(filename)
+                st.image(image, width = 300)
+            with col4:
+                # Add a button to the right column
+                data_load_state = st.info(f"Loading Populaton Data...")
 
-        ### Displaying demographic data of the selected bounding_box
-        summary = aggregator(polygon)
+                ### Displaying demographic data of the selected bounding_box
+                bounding_box, polygon = create_bounding_box(st.session_state['coordinates'][0],st.session_state['coordinates'][1],"display")
 
-        summary_df = pd.DataFrame(summary)
+                ### Displaying demographic data of the selected bounding_box
+                summary = aggregator(polygon)
 
-        pop_sum = summary_df.loc['sum', 'Population']
-        women_sum = summary_df.loc['sum', 'Women']
-        children_sum = summary_df.loc['sum', 'Children (<5 years)']
-        youth_sum = summary_df.loc['sum', 'Youth (15-24 years)']
+                summary_df = pd.DataFrame(summary)
 
-        #Print the values to the console
-        #
-        #st.markdown(f" ## Demographics of the selected frame{nl}"
-        #f" #### Overall Population: {pop_sum}{nl}"
-        #f" #### Women: {women_sum} {nl}"
-        #f" ##### in percentage : {((women_sum / pop_sum)*100).round(1)}% {nl}"
-        #f" #### Children below the Age of 5 years: {children_sum} {nl}"
-        #f" ##### in percentage : {((children_sum / pop_sum)*100).round(1)} % {nl}"
-        #f" #### Youth (age 15 to 24): {youth_sum} {nl}"
-        #f" ##### in percentage : {((youth_sum / pop_sum)*100).round(1)} % {nl}")
+                pop_sum = summary_df.loc['sum', 'Population']
+                women_sum = summary_df.loc['sum', 'Women']
+                children_sum = summary_df.loc['sum', 'Children (<5 years)']
+                youth_sum = summary_df.loc['sum', 'Youth (15-24 years)']
+                data_load_state.empty()
+                #Print the values to the console
+                #
+                #st.markdown(f" ## Demographics of the selected frame{nl}"
+                #f" #### Overall Population: {pop_sum}{nl}"
+                #f" #### Women: {women_sum} {nl}"
+                #f" ##### in percentage : {((women_sum / pop_sum)*100).round(1)}% {nl}"
+                #f" #### Children below the Age of 5 years: {children_sum} {nl}"
+                #f" ##### in percentage : {((children_sum / pop_sum)*100).round(1)} % {nl}"
+                #f" #### Youth (age 15 to 24): {youth_sum} {nl}"
+                #f" ##### in percentage : {((youth_sum / pop_sum)*100).round(1)} % {nl}")
 
-        st.markdown(f" ## Demographics of the selected frame{nl}")
-        st.dataframe(summary)
+                st.markdown(f" ## Demographics of the selected frame{nl}")
+                st.dataframe(summary)
 
-        source = pd.DataFrame({
-            'Demographic':['General Population', 'Women', 'Men', 'Children (<5 years)',
-                 'Youth (15-24 years)'],
-            'Count':[ pop_sum , women_sum,(pop_sum - women_sum),
-                 children_sum, youth_sum]})
+                source = pd.DataFrame({
+                    'Demographic':['General Population', 'Women', 'Men', 'Children (<5 years)',
+                        'Youth (15-24 years)'],
+                    'Count':[ pop_sum , women_sum,(pop_sum - women_sum),
+                        children_sum, youth_sum]})
 
-        chart = alt.Chart(source).mark_bar().encode(
-            alt.X('Demographic',sort=None),
-            alt.Y('Count'),
-            color=alt.Color('Demographic')).properties(width=500,height=400)
+                chart = alt.Chart(source).mark_bar().encode(
+                    alt.X('Demographic',sort=None),
+                    alt.Y('Count'),
+                    color=alt.Color('Demographic')).properties(width=500,height=400)
 
-        st.altair_chart(chart, theme="streamlit", use_container_width=False)
+                st.altair_chart(chart, theme="streamlit", use_container_width=False)
 
 if __name__ == '__main__':
     main()
