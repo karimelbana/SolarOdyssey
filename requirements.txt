@@ -16,4 +16,4 @@ streamlit_folium
 folium
 requests
 geopandas
-
+altair
