@@ -12,7 +12,7 @@ key.json
 Interface/secrets.json
 Interface/__pycache__/
 api/__pycache__/
-
+secrets.json
 .DS_Store
 Interface/.streamlit/
 Interface/__pycache__
