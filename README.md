@@ -3,7 +3,9 @@
 
 Solar Odyssey is a data science project developed by students of the Batch 1142 of LeWagon Data Science Bootcamp in Berlin. The goal of the project is to predict the energy demand of rural areas in Nigeria based on satellite images using a model based on the densenet121 architecture.
 
+
 This project used data provided by: http://rrep-nigeria.integration.org/#
+
 
 ## Known Issues
 
@@ -23,7 +25,7 @@ Karim Elbana
 Arnoud de Haan
 Josef Perara
 Jonathan Büning
-
+s
 ## License
 
 The Solar Odyssey project is licensed under the MIT License. Feel free to use and modify the code as needed.
