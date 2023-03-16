@@ -21,11 +21,11 @@ There are a few known issues with the Solar Odyssey project that should be taken
 
 The Solar Odyssey project was created the following students of Batch 1142 of LeWagon Data Science Bootcamp in Berlin. The contributors to the project are:
 
-Karim Elbana
-Arnoud de Haan
-Josef Perara
-Jonathan Büning
-s
+- Karim Elbana
+- Arnoud de Haan
+- Josef Perara
+- Jonathan Büning
+
 ## License
 
 The Solar Odyssey project is licensed under the MIT License. Feel free to use and modify the code as needed.
