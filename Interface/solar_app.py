@@ -50,21 +50,9 @@ def get_map(center_map):
     Draw(export=True).add_to(map)
     tiles_url = 'http://www.google.com/maps/vt/lyrs=s&x={x}&y={y}&z={z}'
     tiles_attribution = 'Map data © Google'
-
-# Start Fixes
-    # bounding_box = []
-    # # Define the bounding box coordinates
-    # if st.session_state['coordinates'] is not None:
-    #     bounding_box = create_bounding_box(st.session_state['coordinates'][1], st.session_state['coordinates'][0], "Display")
-
-    #     # Add the bounding box to the map
-    #     folium.Polygon(
-    #         locations=bounding_box,
-    #         popup="2km x 2km Bounding Box",
-    #         color='red',
-    #         fill=False
-    #     ).add_to(map)
-
+    folium.TileLayer(tiles=tiles_url,
+                     attr=tiles_attribution).add_to(map)
+    folium.LayerControl().add_to(map)
 
     return map #, bounding_box
 
@@ -106,7 +94,7 @@ def main():
     """
      \n
     Our project uses satellite images to predict energy demand in rural villages. \n
-    Join us in our mission to bring clean and sustainable energy to these communities.
+    This is proof of concept, showcasing the possibilities of Machine Learning for adressing the challenges we face today.
     \n\n\n\n
     """
     )
@@ -139,13 +127,19 @@ def main():
 
     try:
         # Set the value of 'coordinates'
-        st.session_state['coordinates'] = [output['last_object_clicked']['lng'],output['last_object_clicked']['lat']]
+        st.session_state['coordinates'] = [output['last_clicked']['lng'],output['last_clicked']['lat']]
     except:
         st.session_state['coordinates'] = None
 
-    # Display the message and the coordinates
-    st.text("You have selected the following coordinates:")
-    st.write(st.session_state['coordinates'])
+    try:
+        # Display the message and the coordinates
+        if st.session_state['coordinates']:
+
+            st.header("You have selected the following coordinates:")
+        st.header(f"Latitude: {st.session_state['coordinates'][1]}")
+        st.header(f"Longitude: {st.session_state['coordinates'][0]}" )
+    except:
+        st.header("You have not selected any coordinates yet.")
 
     # Divide the app layout into two columns
     col1, col2 = st.columns(2)
@@ -153,7 +147,6 @@ def main():
     #Create a button that users can click to obtain the satellite image and NDVI calculation
     if col1.button("Get Satellite Image and Predict"):
 
-# Fix 4
         # Set the value of 'coordinates'
         st.session_state['coordinates'] = [output['last_object_clicked']['lng'],output['last_object_clicked']['lat']]
 
@@ -163,11 +156,6 @@ def main():
 
         filename = get_sat_image_model(session, Project,st.session_state['coordinates'][0],st.session_state['coordinates'][1])
         image = Image.open(filename)
-
-        model_load_state.empty()
-        expander = st.expander("Show Satellite Image")
-        expander.image(image, caption="PLACEHOLDER LAT LON", use_column_width=True)
-
         url = "https://solar-api-m6bgenzluq-ew.a.run.app/predict"
         files = {"file": ("image.png", open(filename, "rb"), filename)}
         response = requests.post(url, files=files)
@@ -175,12 +163,15 @@ def main():
         if response.status_code == 200:
             prediction = response.json()
             if prediction < 0:
-                st.header(f'There are no villages within the selected area')
+                st.header(f'Energy Prediction: 0 kWh per day')
             else:
                 st.header(f'Energy Prediction: {prediction} kWh per day')
         else:
             st.header(f"Error: {response.text}")
 
+        model_load_state.empty()
+        expander = st.expander("Show Satellite Image")
+        expander.image(image, caption=f"Latitude: {st.session_state['coordinates'][1]} Longitude: {st.session_state['coordinates'][0]}", use_column_width=True)
 
     # Add a button to the right column
     if col2.button('Display Socio-Economic Data'):
