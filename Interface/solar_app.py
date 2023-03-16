@@ -37,8 +37,6 @@ st.set_page_config(
         }
 )
 
-
-
 # Maps
 #@st.cache_resource
 def get_map(center_map):
@@ -53,7 +51,7 @@ def get_map(center_map):
     folium.TileLayer(name="Google Maps Satellite",
                      tiles=tiles_url,
                      attr=tiles_attribution).add_to(map)
-    folium.LayerControl().add_to(map)
+    folium.LayerControl(position="bottomleft").add_to(map)
 
     return map
 
@@ -140,13 +138,13 @@ def main():
             st.header(f"Latitude: {st.session_state['coordinates'][1]}")
             st.header(f"Longitude: {st.session_state['coordinates'][0]}" )
         except:
-            st.header("You have not selected any coordinates yet.")
+            st.header("Click anywhere to select coordinates!")
 
     left, middle, right = st.columns(3)
     col3, col4 = st.columns(2)
     with middle:
         #Create a button that users can click to obtain the satellite image and NDVI calculation
-        if st.button("Get Satellite Image and Predict"):
+        if st.button("Predict Energy Demand And Load Data"):
 
 
             with col3:
