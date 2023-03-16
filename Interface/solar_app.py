@@ -1,5 +1,4 @@
 import streamlit as st
-import plotly.express as px #################
 import altair as alt ########################
 import pandas as pd
 from folium.plugins import Draw
