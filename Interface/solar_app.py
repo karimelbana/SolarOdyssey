@@ -168,7 +168,8 @@ def main():
 
                 model_load_state.empty()
                 image = Image.open(filename)
-                st.image(image, width = 300)
+                st.caption("Satellite Image:")
+                st.image(image, width = 500)
             with col4:
                 # Add a button to the right column
                 data_load_state = st.info(f"Loading Populaton Data...")
