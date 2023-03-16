@@ -141,7 +141,7 @@ def main():
             st.header("Click anywhere to select coordinates!")
 
     left, middle, right = st.columns(3)
-    col3, col4 = st.columns(2)
+    col3, col4 = st.columns(2, gap="large")
     with middle:
         #Create a button that users can click to obtain the satellite image and NDVI calculation
         if st.button("Predict Energy Demand And Load Data"):
@@ -186,16 +186,6 @@ def main():
                 children_sum = summary_df.loc['sum', 'Children (<5 years)']
                 youth_sum = summary_df.loc['sum', 'Youth (15-24 years)']
                 data_load_state.empty()
-                #Print the values to the console
-                #
-                #st.markdown(f" ## Demographics of the selected frame{nl}"
-                #f" #### Overall Population: {pop_sum}{nl}"
-                #f" #### Women: {women_sum} {nl}"
-                #f" ##### in percentage : {((women_sum / pop_sum)*100).round(1)}% {nl}"
-                #f" #### Children below the Age of 5 years: {children_sum} {nl}"
-                #f" ##### in percentage : {((children_sum / pop_sum)*100).round(1)} % {nl}"
-                #f" #### Youth (age 15 to 24): {youth_sum} {nl}"
-                #f" ##### in percentage : {((youth_sum / pop_sum)*100).round(1)} % {nl}")
 
                 st.markdown(f" ## Demographics of the selected frame{nl}")
                 st.dataframe(summary)
