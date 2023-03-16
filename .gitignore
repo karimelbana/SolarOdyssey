@@ -14,13 +14,9 @@ Interface/__pycache__/
 api/__pycache__/
 secrets.json
 .DS_Store
-Interface/.streamlit/
+Interface/.streamlit/secrets.toml
 Interface/__pycache__
 api/__pycache__
-
-
-
-
 
 # Executables
 *.swf
