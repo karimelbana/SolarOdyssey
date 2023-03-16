@@ -93,7 +93,7 @@ def main():
     """
      \n
     Our project uses satellite images to predict energy demand in rural villages. \n
-    This is proof of concept, showcasing the possibilities of Machine Learning for adressing the challenges we face today.
+    This is proof of concept, showcasing the possibilities of Machine Learning in adressing the challenges we face today.
     \n\n\n\n
     """
     )
