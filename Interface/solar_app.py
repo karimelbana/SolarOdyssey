@@ -135,8 +135,8 @@ def main():
             if st.session_state['coordinates']:
 
                 st.header("Selected Coordinates:")
-            st.header(f"Latitude: {st.session_state['coordinates'][1]}")
-            st.header(f"Longitude: {st.session_state['coordinates'][0]}" )
+            st.subheader(f"Latitude: {st.session_state['coordinates'][1]}")
+            st.subheader(f"Longitude: {st.session_state['coordinates'][0]}" )
         except:
             st.header("Click anywhere to select coordinates!")
 
