@@ -13,7 +13,6 @@ from tensorflow.keras.applications.densenet import preprocess_input as preproces
 from tensorflow.keras.models import load_model
 
 def predict(model_path, user_image_path):
-
     #process user image
     user_image_np = np.array(np.array(Image.open(user_image_path)))
     #plt.imshow(user_image)

@@ -35,7 +35,6 @@ async def predict(file: UploadFile = File(...)):
 
     #Preprocess the image
     image_preproc = preprocess_input_densenet(image)
-
     to_predict = np.expand_dims(image_preproc, axis=0)
 
     # Load model
